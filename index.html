@@ -1,0 +1,114 @@
+<html ng-app="booksLibraryApp">
+<head>
+    <title>Inicio</title>
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+    
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">AngularJS Demo</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#/">Home</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div ng-view></div>
+
+    </div><!-- /.container -->
+    
+    <!-- templates -->
+    
+    <script type="text/ng-template" id="views/list.html">
+        <h2>List</h2>
+        
+        <div>
+            <a href="#/new" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> New</a>
+        </div>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Year</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="book in books" title="{{ book.description }}">
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.year }}</td>
+                    <td>
+                        <a ng-click="edit(book)" class="btn btn-default">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+                        <a ng-click="delete(book)" class="btn btn-default">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </script>
+    
+    <script type="text/ng-template" id="views/edit.html">
+        <h2>Edit</h2>
+        
+        <form role="form">
+            
+            <fieldset>
+                <legend>Book Info</legend>
+                
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input ng-model="title" type="text" id="title" class="form-control" placeholder="Title" />
+                </div>
+            
+                <div class="form-group">
+                    <label for="author">Author</label>
+                    <input ng-model="author" type="text" id="author" class="form-control" placeholder="Author" />
+                </div>
+            
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input ng-model="year" type="number" id="year" class="form-control" placeholder="Year (YYYY)" />
+                </div>
+            
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea ng-model="description" id="description" class="form-control" placeholder="description">
+                    </textarea>
+                </div>
+                
+            </fieldset>
+            
+            <button type="button" ng-click="save()" class="btn btn-primary">Save</button>
+            <a href="#/list" class="btn btn-danger">Cancel</a>
+            
+        </form>
+    </script>
+    
+    <!-- /templates -->
+    
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/angular-1.0.8.js"></script>
+    <script src="js/bootstrap-3.0.0.js"></script>
+    <script src="js/index.js"></script>
+    
+</body>
+</html>
