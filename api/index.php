@@ -35,82 +35,72 @@ $app = new \Slim\Slim();
 
 // GET route
 $app->get('/books', function () {
-
-    $books = array(
-        array(
-            'id' => 1, 
-            'title' => "libro numero 1", 
-            'author' => "Autor del libro numero 1", 
-            'description' => "Descripcion del libro numero 1", 
-            'year' => 2013
-        ),
-        array(
-            'id' => 2, 
-            'title' => "libro numero 2", 
-            'author' => "Autor del libro numero 2", 
-            'description' => "Descripcion del libro numero 2", 
-            'year' => 2012
-        ),
-        array(
-            'id' => 3, 
-            'title' => "libro numero 3", 
-            'author' => "Autor del libro numero 3", 
-            'description' => "Descripcion del libro numero 3", 
-            'year' => 2011
-        ),
-        array(
-            'id' => 4, 
-            'title' => "libro numero 4", 
-            'author' => "Autor del libro numero 4", 
-            'description' => "Descripcion del libro numero 4", 
-            'year' => 2010
-        ),
-    );
-
+	$sql = "select * FROM libro";
+	try {
+	        $db = getConnection();
+	        $stmt = $db->query($sql);  
+	        $proyectos = $stmt->fetchAll(PDO::FETCH_OBJ);
+	        $db = null;
+	       // echo '{"subproyecto": ' . json_encode($proyectos) . '}';
+	    } catch(PDOException $e) {
+	        echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	    }
+    $books = $proyectos;
     header("Content-Type: application/json");
-    echo json_encode($books);
+    echo json_encode($books) ;
 });
 
 // GET /{id} route
 $app->get('/books/:id', function ($id) {
 
     // logica para ir a buscar el libro en base al id
-
-    $book = array(
-        'id' => $id, 
-        'title' => "libro numero $id", 
-        'author' => "Autor del libro numero $id", 
-        'description' => "Descripcion del libro numero $id", 
-        'year' => 2013
-    );
+	$sql = "select * FROM libro WHERE id =" . $id;
+	$book=array();
+	try {
+	        $db = getConnection();
+	        $stmt = $db->query($sql);  
+	        $book = $stmt->fetchAll(PDO::FETCH_OBJ);
+	        $db = null;
+	    } catch(PDOException $e) {
+	        echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	    }
 
     header("Content-Type: application/json");
-    echo json_encode($book);
+    echo json_encode($book[0]);
 });
 
 // POST route
 $app->post('/books', function () use ($app) {
+	
 
     $request = $app->request();
     $book = json_decode($request->getBody());
-
-    // logica para hacer el insert del libro.
-
-    $book->id = 100;
-
-    header("Content-Type: application/json");
-    echo json_encode($book);
+	header("Content-Type: application/json");
+	try {
+	        $db = getConnection();
+	      	$insert = $db->prepare("INSERT INTO libro(title,author,year,description) VALUES (?,?,?,?)");
+			$insert->execute(array($book->title,$book->author,$book->year,$book->description));
+			$db = null;
+			echo '{"status":0,"text":"bien"}';
+	    } catch(PDOException $e) {
+	        echo '{"error":{"text":'. $e->getMessage() ." - ".$element->author.'}}'; 
+	    }
 });
 
 // PUT route
-$app->put('/books/:id', function ($id) use ($app) {
+$app->put('/books', function () use ($app) {
     $request = $app->request();
     $book = json_decode($request->getBody());
-
-    // logica para hacer el update del libro.
-
-    header("Content-Type: application/json");
-    echo json_encode($book);
+ 	header("Content-Type: application/json");
+	try {
+    	$db = getConnection();
+  		$update = $db->prepare("UPDATE libro SET title= ?,author= ?,year=?,description=? WHERE id = ?");
+		$update->execute(array($book->title,$book->author,$book->year,$book->description,$book->id));
+		$db = null;
+		echo '{"status":0,"text":"bien"}';
+	} catch(PDOException $e) {
+    	echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
 });
 
 // PATCH route
@@ -120,7 +110,16 @@ $app->patch('/books/:id', function ($id) {
 
 // DELETE route
 $app->delete('/books/:id', function ($id) {
-    // logica para eliminar el libro
+   	header("Content-Type: application/json");
+	try {
+    	$db = getConnection();
+  		$delete = $db->prepare("DELETE FROM libro  WHERE id = ?");
+		$delete->execute(array($id));
+		$db = null;
+		echo '{"status":0,"text":"bien"}';
+	} catch(PDOException $e) {
+    	echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+	}
 });
 
 /**
@@ -130,3 +129,16 @@ $app->delete('/books/:id', function ($id) {
  * and returns the HTTP response to the HTTP client.
  */
 $app->run();
+/**
+ * Function to configure the database server connection
+**/
+function getConnection() {
+    $dbhost="<server>";
+    $dbuser="<dbuser>";
+    $dbpass="<password>";
+    $dbname="Biblioteca";
+    $dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
+    $dbh -> exec("set names utf8");
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    return $dbh;
+}

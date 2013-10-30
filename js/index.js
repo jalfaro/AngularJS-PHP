@@ -33,7 +33,7 @@
 
     function bookService($http) {
 
-        var booksApiUrl = 'http://localhost/bookslibrary/api/index.php/books';
+        var booksApiUrl = 'http://localhost/apiREST/angularjs-php/api/index.php/books';
         
         return {
             getAll: function() {
@@ -66,14 +66,14 @@
 
         });
 
-        $scope.eliminar = function (book) {
+        $scope.delete = function (book) {
             
             if (!$window.confirm('Are you sure?')) {
                 return;
             }
             
             bookService.remove(book).success(function () {
-                var index = $scope.books.indexOf(book);
+               var index = $scope.books.indexOf(book);
                 if (index >= 0) {
                     $scope.books.splice(index, 1);
                 }
@@ -135,7 +135,6 @@
                 description : $scope.description,
                 year : $scope.year
             };
-            
             bookService.add(book).success(function (book) {
                 $location.path('/list');
             });
